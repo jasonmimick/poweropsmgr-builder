@@ -19,15 +19,21 @@
 #
 #
 set -e
+REQUIRED_JDK_VERSION="1.8.0"
 
-check_ops_mgr_install() {
-	echo "check_ops_mgr_install check existence of $1/conf/mms.conf"
-	if [ ! -f $1/conf/mms.conf ]; then
-		return 0
+# return 1 for success, Ops Mgr NOT FOUND
+# return 0 for failure, Ops Mgr FOUND
+ops_mgr_not_installed() {
+	local mms_conf
+	mms_conf="$1/conf/mms.conf"
+	echo "check_ops_mgr_install check existence of $mms_conf"
+	if [ -e "$mms_conf" ]; then
+		return 1		#non-zero, failure
 	else
-		return 1
+		return 0		#Success
 	fi
 }
+
 
 # Credit for generic yes/no question
 # https://gist.github.com/davejamesmiller/1965569
@@ -71,17 +77,24 @@ ask() {
 echo "MongoDB Ops Manager for IBM POWER"
 echo "Post-Installation script"
 echo ""
+echo "Required JDK version=$REQUIRED_JDK_VERSION"
+echo ""
 echo "Detecting Ops Manager for IBM POWER installation"
 MMS_INSTALL_DIR="`pwd`/mongodb-mms-3.4.7.479-1.ppc64le"
-if check_ops_mgr_install "$MMS_INSTALL_DIR"; then
+echo "Looking in: $MMS_INSTALL_DIR"
+if ops_mgr_not_installed "$MMS_INSTALL_DIR"; then
 	echo "Did not find Ops Manager installed to $MMS_INSTALL_DIR."
 	echo -n "Enter path to Ops Manager installation: "
 	read new_install_dir </dev/tty
-	if check_ops_mgr_install "$new_install_dir"; then
+	echo "new_install_dir=$new_install_dir"
+	if ops_mgr_not_installed "$new_install_dir"; then
 		echo ""
 		echo "Sorry Ops Manager not detected in path $new_install_dir"
 		echo "Please re-run post-install.sh"
 		exit 1
+	else
+		MMS_INSTALL_DIR="$new_install_dir"
+		echo ">>>>> MMS_INSTALL_DIR=$MMS_INSTALL_DIR"
 	fi
 fi
 JAVAC=`which javac`
@@ -99,7 +112,19 @@ else
 	echo "Will not override detected JAVA_HOME"
 fi
 
-if ask "(2) Do you wish to override the Ops Manager Versions Directory?" N; then
+echo ""
+echo "(2) Validating JDK version is $REQUIRED_JDK_VERSION"
+JDK_VERSION=$($JAVA_HOME/bin/javac -version 2>&1)
+JDK_VERSION=`echo $JDK_VERSION | cut -d ' ' -f 2 | cut -d '_' -f 1`
+
+if [ ! "$JDK_VERSION" = "$REQUIRED_JDK_VERSION" ]; then
+	echo "Invalid JDK version detected. Found:$JDK_VERSION"
+	echo "Please install correct JDK and re-run post-install.sh"
+	exit 1
+fi
+echo "Found JDK version: $JDK_VERSION"
+echo ""
+if ask "(3) Do you wish to override the Ops Manager Versions Directory?" N; then
 	echo -n "Enter new automation.versions.directory: "
 	read automation_versions_directory </dev/tty
 	if [ ! -d "$automation_versions_directory" ]; then
@@ -128,7 +153,7 @@ echo " ************************************************** "
 echo ""
 if ask "* Do you wish to write updated Ops Manager configuration?" N; then
 	echo "..... updating mms.conf ......"
-	echo << MMS_CONF >> $MMS_TAR_DIR/conf/mms.conf
+	cat << MMS_CONF >> $MMS_INSTALL_DIR/conf/mms.conf
 # 
 #
 # #####################################
@@ -142,7 +167,7 @@ MMS_CONF
 	if (($OVERRIDE_AUTOMATION_VERSIONS_DIRECTORY)); then 
 		echo "...... updateing conf-mms.properties ......"
 		echo "Using automation_versions_directory=$automation_versions_directory"
-		echo << CONF_MMS_PROPERTIES >> $MMS_INSTALL_DIR/conf/conf-mms.properties
+		cat << CONF_MMS_PROPERTIES >> $MMS_INSTALL_DIR/conf/conf-mms.properties
 # 
 #
 # #####################################
