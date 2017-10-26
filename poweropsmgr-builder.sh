@@ -8,8 +8,9 @@ MMS_VERSION=$1
 echo "Starting MongoDB Ops Manager build for IBM Power"
 echo "poweropsmgr-builder version: $POWEROPSMGR_BUILDER_VERSION"
 echo "Building Ops Manager version: $MMS_VERSION"
-DOWNLOAD_HOME=https://downloads.mongodb.com/on-prem-mms/tar/
-BUILD_HOME="`pwd`/builds/"
+#DOWNLOAD_HOME=https://downloads.mongodb.com/on-prem-mms/tar/
+DOWNLOAD_HOME=http://172.31.49.71/local_opsmgr_archives/
+BUILD_HOME="/home/ec2-user/webroot/builds/"
 echo "Build home: $BUILD_HOME"
 
 [ -d $BUILD_HOME ] || mkdir -p $BUILD_HOME
@@ -43,18 +44,25 @@ sed -i 's/Xss228k/Xss328k/' $MMS_TAR_DIR/conf/mms.conf
 #mongodb.release.directory=<path?> --- POST INSTALL STEP!!
 #mongodb.release.autoDownload=false
 cat << CONF_DOC_NOTES >> $MMS_TAR_DIR/conf/conf-mms.properties
-# ####################################
+#
+# #####################################
 # Settings for MongoDB Ops Manager on IBM POWER
 
 mongodb.release.autoDownload=false
 
 # poweropsmgr-builder.sh Version: $POWEROPSMGR_BUILDER_VERSION
 # Build timestamp: `date` 
+#
+# #####################################
+#
 CONF_DOC_NOTES
 
 
 #pack up
-tar czf ../$MMS_POWER_TAR $MMS_TAR_DIR
+MMS_POWER_TAR_DIR=$(sed 's/x86_64/ppc64le/g' <<< $MMS_TAR_DIR)
+mv $MMS_TAR_DIR $MMS_POWER_TAR_DIR
+echo "Creating archive $MMS_POWER_TAR from $MMS_POWER_TAR_DIR"
+tar czf ../$MMS_POWER_TAR $MMS_POWER_TAR_DIR
 
 cd ..
 echo "Created `pwd`/$MMS_POWER_TAR" 
@@ -65,5 +73,5 @@ echo "Created `pwd`/$MMS_POWER_TAR"
 # that would be sweet
 
 
-#deploy to file server
-
+# clean up
+rm -rf $BUILD_WORKING_DIR 
