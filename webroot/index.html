@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="utf-8"/>
+	<title>MongoDB for GIANT Ideas | MongoDB Ops Manager for IBM POWER</title>
+<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet">
+	<style>
+	body {
+		width: 100%;
+		font-family: Arial;
+		font-size: 120%;
+		margin-right: 10%;
+		margin-left: 10%;
+	}
+	li 	{
+		margin: 20px 4px 20px 4px;
+		padding-right: 40px;
+		padding-bottom: 5px
+	}
+
+	.mono {
+		font-family: 'Source Code Pro', monospace
+	}
+
+	.shell {
+		font-family: 'Source Code Pro', monospace;
+	    padding: 24px 12px;
+    	color: #222;
+    	margin: 24px 0;
+		background-color: rgba(0,0,0,.5);
+		display: block;
+		background: url(https://media.mongodb.org/code-block-bg@2x.png) #f5f6f7;
+		border-left: 5px solid #494747;
+    	font-size: 14px;
+    	line-height: 24px;
+	}
+	</style>
+</head>
+
+<body>
+<div style="vertical-align:center">
+<img height="60" width="50" style="float:left" 
+     src="./MongoDB_Leaf_PMS_3c.png"/>
+<h1 style="xdisplay:inline-block">
+MongoDB Ops Manager for IBM Power</h1>
+</div>
+<h2>ALPHA DEVELOPMENT RELEASE</h2>
+
+<br/>
+
+Before installing Ops Manager on and IBM POWER machine running
+Linux, prepare by validating the following:
+<h3>Pre-Installation Procedure</h3>
+
+<ol>
+	<li>A full Java JDK version  <b>1.8.0</b> is installed.</li>
+	<li>Note the location of the JDK, while the post-install step 
+will attempt to auto-detect the JDK location, you may 
+need to enter this path to set the correct JAVA_HOME environment 
+variable in order for Ops Manager to function properly.</li>
+	<li>Decide if you wish to override the Ops Manager Local
+Version directory on your instance (<span class="mono">/data/automation/mongodb-releases/</span>). If so, note a
+path to which the user running Ops Manager has access. In the 
+post-install step you will be able to set this configuration
+parameter (setting the <span class="mono">automation.versions.directory</span>)
+property.</li>
+
+
+</ol>
+<h3>Installation Instructions</h3>
+<ol>
+
+<li>Download the lastest MongoDB Ops Manager IBM POWER archive from
+<a href="../builds">here</a>
+or, just
+<div class="shell">
+curl -OL http://54.89.245.135/builds/3.4.7.479-1/mongodb-mms-3.4.7.479-1.ppc64le.tar.gz
+</div>
+
+</li>
+
+<li>
+Use the <a href="https://docs.opsmanager.mongodb.com/current/tutorial/install-on-prem-from-archive/">Install from Archive on Linux</a> documentation
+to install Ops Manager, <b>BUT....</b>
+</li>
+<li>
+After step 2 (unpacking the Ops Manager archive) download and 
+execute the post install script:
+
+<br/>
+<div class="shell">
+curl -OL https://raw.githubusercontent.com/jasonmimick/poweropsmgr-builder/master/post-install.sh
+</div>
+</li>
+
+</ol>
+
+</body>
+
+</html>
+
