@@ -34,15 +34,12 @@ echo "Unpack complete."
 
 #edit conf
 
-#echo conf/mms.conf
-# -!! Location of JDK is POST INSTALL step!!
-#JAVA_HOME to the location of a Power build of the JDK
-#    JAVA_MMS_UI_OPTS change -Xss228k to -Xss328k
+echo "Updating $MMS_TAR_DIR/conf/mms.conf ......"
 sed -i 's/Xss228k/Xss328k/' $MMS_TAR_DIR/conf/mms.conf
-#edit conf/conf-mms.properties
-#set 
-#mongodb.release.directory=<path?> --- POST INSTALL STEP!!
-#mongodb.release.autoDownload=false
+echo "Update complete."
+echo ""
+
+echo "Updating $MMS_TAR_DIR/conf/conf-mms.properties ......"
 cat << CONF_DOC_NOTES >> $MMS_TAR_DIR/conf/conf-mms.properties
 #
 # #####################################
@@ -56,7 +53,8 @@ mongodb.release.autoDownload=false
 # #####################################
 #
 CONF_DOC_NOTES
-
+echo "Update complete."
+echo ""
 
 #pack up
 MMS_POWER_TAR_DIR=$(sed 's/x86_64/ppc64le/g' <<< $MMS_TAR_DIR)
@@ -75,3 +73,5 @@ echo "Created `pwd`/$MMS_POWER_TAR"
 
 # clean up
 rm -rf $BUILD_WORKING_DIR 
+
+echo "poweropsmgr-builder.sh complete."

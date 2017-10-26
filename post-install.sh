@@ -124,6 +124,18 @@ if [ ! "$JDK_VERSION" = "$REQUIRED_JDK_VERSION" ]; then
 fi
 echo "Found JDK version: $JDK_VERSION"
 echo ""
+
+# Validate JCE - Java Cryptography Extensions is installed
+echo "Validating JCE - Java Cryptography Extensions are installed."
+GOT_JCE=`$JAVA_HOME/bin/jrunscript -e 'print (javax.crypto.Cipher.getMaxAllowedKeyLength("RC5") >= 256);'`
+if [ "$GOT_JCE" = "true" ]; then
+	echo "JCE - Java Cryptography Extensions verified."
+else
+	echo "Unable to validate JCE - Java Cryptography Extenstion."
+	echo "Please resolve and re-run post-install.sh"
+	exit 1
+fi
+echo ""
 if ask "(3) Do you wish to override the Ops Manager Versions Directory?" N; then
 	echo -n "Enter new automation.versions.directory: "
 	read automation_versions_directory </dev/tty
@@ -141,18 +153,19 @@ else
 	FOO=0
 fi 
 
-echo "Summary:"
+echo " Post Install Summary:"
+echo " ************************************************** "
+echo ""
 echo "OVERRIDE_AUTOMATION_VERSIONS_DIRECTORY=$OVERRIDE_AUTOMATION_VERSIONS_DIRECTORY"
 echo "Using JAVA_HOME=$JAVA_HOME"
 if (($OVERRIDE_AUTOMATION_VERSIONS_DIRECTORY)); then 
 	echo "Using automation_versions_directory=$automation_versions_directory"
 fi
-
-echo " ************************************************** "
+echo ""
 echo " ************************************************** "
 echo ""
 if ask "* Do you wish to write updated Ops Manager configuration?" N; then
-	echo "..... updating mms.conf ......"
+	echo "Updating $MMS_INSTALL_DIR/conf/mms.conf ......"
 	cat << MMS_CONF >> $MMS_INSTALL_DIR/conf/mms.conf
 # 
 #
@@ -164,8 +177,9 @@ APP_NAME=java
 #
 # #####################################
 MMS_CONF
+	echo "Update complete."
 	if (($OVERRIDE_AUTOMATION_VERSIONS_DIRECTORY)); then 
-		echo "...... updateing conf-mms.properties ......"
+		echo "Updating $MMS_INSTALL_DIR/conf/conf-mms.properties ......"
 		echo "Using automation_versions_directory=$automation_versions_directory"
 		cat << CONF_MMS_PROPERTIES >> $MMS_INSTALL_DIR/conf/conf-mms.properties
 # 
@@ -177,10 +191,15 @@ automation.versions.directory=$automation_versions_directory
 #
 # #####################################
 CONF_MMS_PROPERTIES
+	echo "Update complete."
 	fi
 else
 	echo "Configuration not updated"
 fi
+
+
+echo "MongoDB Ops Manager for IBM POWER Post Installation Complete."
+echo "Please continue with documented Ops Manager installation steps."
 exit 0
 
 
