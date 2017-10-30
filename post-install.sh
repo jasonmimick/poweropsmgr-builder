@@ -197,6 +197,9 @@ else
 	echo "Configuration not updated"
 fi
 
+# ?? Should we download versions for backup automagically?
+# TODO - recheck if auto-download works now with the new build system
+
 
 echo "MongoDB Ops Manager for IBM POWER Post Installation Complete."
 echo "Please continue with documented Ops Manager installation steps."

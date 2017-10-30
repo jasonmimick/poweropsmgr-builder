@@ -6,11 +6,11 @@
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet">
 	<style>
 	body {
-		width: 100%;
+		xwidth: 100%;
 		font-family: Arial;
 		font-size: 120%;
-		margin-right: 10%;
-		margin-left: 10%;
+		xmargin-right: 10%;
+		xmargin-left: 10%;
 	}
 	li 	{
 		margin: 20px 4px 20px 4px;
@@ -48,24 +48,58 @@ MongoDB Ops Manager for IBM Power</h1>
 
 <br/>
 
-Before installing Ops Manager on and IBM POWER machine running
-Linux, prepare by validating the following:
+<h3>Introduction</h3>
+
+<p>Installing MongoDB Ops Manager on the IBM Power platform
+is not complicated. In general you'll be following the standard
+MongoDB documentation for installing Ops Manager. There are, 
+however, a couple of steps you need to take. This document
+will guide you through the installation process. 
+</p>
+
+<p>Please read this entire document before logging into any systems.
+There is a <b>cruicial</b> step documented here which occurs <i>after</i> the
+2<sup>nd</sup> step in the offical documentation. Failure to 
+properly perform this step will result in a non-functional system.
+</p>
+
 <h3>Pre-Installation Procedure</h3>
 
 <ol>
-	<li>A full Java JDK version  <b>1.8.0</b> is installed.</li>
+	<li>Validate a full Java JDK version <b>1.8.0</b> is installed.
+            For example,
+<div class="shell">
+$javac -version
+</div>
+
+	</li>
 	<li>Note the location of the JDK, while the post-install step 
 will attempt to auto-detect the JDK location, you may 
-need to enter this path to set the correct JAVA_HOME environment 
-variable in order for Ops Manager to function properly.</li>
-	<li>Decide if you wish to override the Ops Manager Local
-Version directory on your instance (<span class="mono">/data/automation/mongodb-releases/</span>). If so, note a
-path to which the user running Ops Manager has access. In the 
-post-install step you will be able to set this configuration
-parameter (setting the <span class="mono">automation.versions.directory</span>)
-property.</li>
-
-
+need to enter this path to set the correct 
+<span class="mono">JAVA_HOME</span> environment 
+variable in order for Ops Manager to function properly.
+One way to find your <span class="mono">JAVA_HOME</span> is,
+<div class="shell">
+$readlink -f `which javac`
+</div>
+</li>
+	<li>Do you need to override the Ops Manager Local
+Version directory? <br/>The default is 
+<span class="mono">/data/automation/mongodb-releases/</span>).<br/> 
+If <b>NO</b> continue to step 4, else continue.<br/><br/> 
+Note the path you wish to use, then ensure the user you run 
+the <span class="mono">mongodb-mms</span> service as has read
+and write permission on that path. In the post-install step you 
+will be able to set this configuration parameter 
+(<span class="mono">automation.versions.directory</span>)
+.</li>
+<li>You will need to manually download the IBM POWER 
+(<span class="mono">ppc64le</span>) builds for each 
+MongoDB version you wish to backup with Ops Manager.<br/> 
+Be sure to place the <span class="mono">.tgz</span> file in the 
+ <span class="mono">automation.versions.directory</span>
+directory and <b><i>ALSO</i></b> unpack the archive!
+</li>
 </ol>
 <h3>Installation Instructions</h3>
 <ol>
@@ -93,6 +127,9 @@ curl -OL https://raw.githubusercontent.com/jasonmimick/poweropsmgr-builder/maste
 </div>
 <div class="shell">
 chmod +x post-install.sh
+</div>
+<div class="shell">
+./post-install.sh
 </div>
 </li>
 
