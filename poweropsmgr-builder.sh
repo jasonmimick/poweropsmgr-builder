@@ -8,8 +8,8 @@ MMS_VERSION=$1
 echo "Starting MongoDB Ops Manager build for IBM Power"
 echo "poweropsmgr-builder version: $POWEROPSMGR_BUILDER_VERSION"
 echo "Building Ops Manager version: $MMS_VERSION"
-#DOWNLOAD_HOME=https://downloads.mongodb.com/on-prem-mms/tar/
-DOWNLOAD_HOME=http://172.31.49.71/local_opsmgr_archives/
+DOWNLOAD_HOME=https://downloads.mongodb.com/on-prem-mms/tar/
+#DOWNLOAD_HOME=http://172.31.49.71/local_opsmgr_archives/
 BUILD_HOME="/home/ec2-user/webroot/builds/"
 echo "Build home: $BUILD_HOME"
 
