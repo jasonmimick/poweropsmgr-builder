@@ -1,6 +1,8 @@
 #!/bin/bash
 
 POWEROPSMGR_BUILDER_VERSION=-0.0.1
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 #
 set -e
 
@@ -8,6 +10,7 @@ MMS_VERSION=$1
 echo "Starting MongoDB Ops Manager build for IBM Power"
 echo "poweropsmgr-builder version: $POWEROPSMGR_BUILDER_VERSION"
 echo "Building Ops Manager version: $MMS_VERSION"
+echo "Source directory: $SOURCE_DIR"
 DOWNLOAD_HOME=https://downloads.mongodb.com/on-prem-mms/tar/
 #DOWNLOAD_HOME=http://172.31.49.71/local_opsmgr_archives/
 BUILD_HOME="/home/ec2-user/webroot/builds/"
@@ -56,6 +59,18 @@ CONF_DOC_NOTES
 echo "Update complete."
 echo ""
 
+#overrite jdk with ppc64le jdk
+echo "Removing bundled JDK:$MMS_TAR_DIR/jdk"
+echo "full path=`readlink -f $MMS_TAR_DIR/jdk`"
+rm -rf $MMS_TAR_DIR/jdk
+mkdir $MMS_TAR_DIR/jdk
+cp $SOURCE_DIR/jdk.ppc64le.tgz $MMS_TAR_DIR/jdk
+ls -l $MMS_TAR_DIR/jdk
+cd $MMS_TAR_DIR/jdk
+tar xzvf jdk.ppc64le.tgz
+ls -l $MMS_TAR_DIR/jdk
+cd $BUILD_WORKING_DIR
+
 #pack up
 MMS_POWER_TAR_DIR=$(sed 's/x86_64/ppc64le/g' <<< $MMS_TAR_DIR)
 mv $MMS_TAR_DIR $MMS_POWER_TAR_DIR
@@ -72,6 +87,6 @@ echo "Created `pwd`/$MMS_POWER_TAR"
 
 
 # clean up
-rm -rf $BUILD_WORKING_DIR 
+#rm -rf $BUILD_WORKING_DIR 
 
 echo "poweropsmgr-builder.sh complete."
