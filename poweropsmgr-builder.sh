@@ -2,7 +2,8 @@
 
 POWEROPSMGR_BUILDER_VERSION=-0.0.1
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
+SOURCE_JDK_DIR=$SOURCE_DIR
+TARGET_JDK_TGZ="jdk.ppc64le.tgz"
 #
 set -e
 
@@ -20,29 +21,45 @@ echo "Build home: $BUILD_HOME"
 
 BUILD_DIR="$BUILD_HOME$MMS_VERSION"
 echo "Build directory: $BUILD_DIR"
+echo "Cleaning build directory: $BUILD_DIR"
+rm -rf $BUILD_DIR
 BUILD_WORKING_DIR="$BUILD_DIR/working"
 echo "Build working directory: $BUILD_WORKING_DIR"
 mkdir -p $BUILD_WORKING_DIR
 cd $BUILD_WORKING_DIR
-echo "Working in `pwd`"
+echo "Working in: `pwd`"
 MMS_TAR="mongodb-mms-$MMS_VERSION.x86_64.tar.gz"
 MMS_TAR_DIR="mongodb-mms-$MMS_VERSION.x86_64"
 MMS_POWER_TAR="mongodb-mms-$MMS_VERSION.ppc64le.tar.gz"
-echo "Attemping download of $DOWNLOAD_HOME$MMS_TAR to $BUILD_DIR/working"
+echo "Attemping download of $DOWNLOAD_HOME$MMS_TAR to $BUILD_WORKING_DIR"
 curl -OL $DOWNLOAD_HOME$MMS_TAR
 echo "Download complete."
-echo "Unpacking Ops Manager build: $MMS_TAR"
+echo "Unpacking Ops Manager build: `pwd`/$MMS_TAR"
 tar zxf $MMS_TAR
 echo "Unpack complete."
 
 #edit conf
 
-echo "Updating $MMS_TAR_DIR/conf/mms.conf ......"
+echo "Updating JVM settings `pwd`/$MMS_TAR_DIR/conf/mms.conf ......"
 sed -i 's/Xss228k/Xss328k/' $MMS_TAR_DIR/conf/mms.conf
-echo "Update complete."
+echo "JVM settings update complete: `pwd`/$MMS_TAR_DIR/conf/mms.conf"
 echo ""
 
-echo "Updating $MMS_TAR_DIR/conf/conf-mms.properties ......"
+echo "Updating APP_NAME in `pwd`/$MMS_TAR_DIR/conf/mms.conf ......"
+cat << MMS_CONF >> $MMS_TAR_DIR/conf/mms.conf
+# 
+#
+# #####################################
+# Settings for MongoDB Ops Manager on IBM POWER
+# post-install.sh update: `date`
+APP_NAME=java
+#
+# #####################################
+MMS_CONF
+echo "APP_NAME update complete: `pwd`/$MMS_TAR_DIR/conf/mms.conf"
+echo ""
+
+echo "Updating `pwd`/$MMS_TAR_DIR/conf/conf-mms.properties ......"
 cat << CONF_DOC_NOTES >> $MMS_TAR_DIR/conf/conf-mms.properties
 #
 # #####################################
@@ -56,20 +73,25 @@ mongodb.release.autoDownload=false
 # #####################################
 #
 CONF_DOC_NOTES
-echo "Update complete."
+echo "Update complete: `pwd`/$MMS_TAR_DIR/conf/conf-mms.properties"
 echo ""
 
-#overrite jdk with ppc64le jdk
-echo "Removing bundled JDK:$MMS_TAR_DIR/jdk"
-echo "full path=`readlink -f $MMS_TAR_DIR/jdk`"
-rm -rf $MMS_TAR_DIR/jdk
-mkdir $MMS_TAR_DIR/jdk
-cp $SOURCE_DIR/jdk.ppc64le.tgz $MMS_TAR_DIR/jdk
-ls -l $MMS_TAR_DIR/jdk
-cd $MMS_TAR_DIR/jdk
-tar xzvf jdk.ppc64le.tgz
-ls -l $MMS_TAR_DIR/jdk
-cd $BUILD_WORKING_DIR
+#overrite jdk with $SOURCE_JDK_DIR/$TARGET_JDK_TGZ jdk
+MMS_JDK_DIR=`readlink -f $MMS_TAR_DIR/jdk`
+echo "Removing bundled JDK:$MMS_JDK_DIR"
+rm -rf $MMS_JDK_DIR
+mkdir -p $MMS_JDK_DIR
+
+echo "Copying $SOURCE_JDK_DIR/$TARGET_JDK_TGZ to $MMS_JDK_DIR"
+cp $SOURCE_JDK_DIR/$TARGET_JDK_TGZ $MMS_JDK_DIR
+ls -l $MMS_JDK_DIR
+
+pushd $MMS_JDK_DIR
+echo "Unpacking $TARGET_JDK_TGZ in `pwd`"
+tar xzvf $TARGET_JDK_TGZ
+echo "Cleaning up $TARGET_JDK_TGZ in `pwd`"
+popd
+ls -l $MMS_JDK_DIR
 
 #pack up
 MMS_POWER_TAR_DIR=$(sed 's/x86_64/ppc64le/g' <<< $MMS_TAR_DIR)

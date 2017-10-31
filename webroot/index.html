@@ -44,11 +44,23 @@
 <h1 style="xdisplay:inline-block">
 MongoDB Ops Manager for IBM Power</h1>
 </div>
-<h2>ALPHA DEVELOPMENT RELEASE</h2>
+<h2>PRE-GA DEVELOPMENT RELEASE</h2>
 
 <br/>
 
 <h3>Introduction</h3>
+
+<p>
+Ops Manager is a package for managing MongoDB deployments. 
+Ops Manager provides Ops Manager Monitoring and Ops 
+Manager Backup, which helps users optimize clusters 
+and mitigate operational risk. 
+</p>
+
+<p>
+This document will guide you through installing Pre-GA 
+version of MongoDB Ops Manager on IBM POWER Linux.  
+This Pre-GA version is for IBM internal purposes.
 
 <p>Installing MongoDB Ops Manager on the IBM Power platform
 is not complicated. In general you'll be following the standard
@@ -57,49 +69,41 @@ however, a couple of steps you need to take. This document
 will guide you through the installation process. 
 </p>
 
-<p>Please read this entire document before logging into any systems.
-There is a <b>cruicial</b> step documented here which occurs <i>after</i> the
-2<sup>nd</sup> step in the offical documentation. Failure to 
-properly perform this step will result in a non-functional system.
+<p>
+Please read this entire document before logging into 
+any systems. Failure to properly perform all steps will 
+result in a non-functional system.
 </p>
 
-<h3>Pre-Installation Procedure</h3>
+<h3>Pre-Installation Notes</h3>
 
 <ol>
-	<li>Validate a full Java JDK version <b>1.8.0</b> is installed.
-            For example,
+	<li>You will need to use 
+<a href="https://docs.opsmanager.mongodb.com/current/tutorial/configure-local-mode/">Local Mode</a> 
+for Ops Manager 
+Servers even if your servers have internet access. This is 
+due to the fact that this Pre-GA version does not yet support
+automatically downloading the correct 
+<span class="mono">ppc64le</span> build of MongoDB Enterprise.
+In addition to manually downloading and unpacking the
+correct MongoDB Enterprise <span class="mono">ppc64le</span>
+builds you must also copy both the archive
+<span class="mono">.tgz</span> files and the folder created
+when unpacking, into similarily a similarly named file and 
+directory. For example,
+
 <div class="shell">
-$javac -version
+cp ./mongodb-linux-ppc64le-enterprise-ubuntu1604-3.4.10.tgz ./mongodb-linux-x86_64-enterprise-ubuntu1604-3.4.10.tgz
+</div>
+and
+
+<div class="shell">
+cp -R mongodb-linux-ppc64le-enterprise-ubuntu1604-3.4.10 mongodb-linux-x86_64-enterprise-ubuntu1604-3.4.10
 </div>
 
-	</li>
-	<li>Note the location of the JDK, while the post-install step 
-will attempt to auto-detect the JDK location, you may 
-need to enter this path to set the correct 
-<span class="mono">JAVA_HOME</span> environment 
-variable in order for Ops Manager to function properly.
-One way to find your <span class="mono">JAVA_HOME</span> is,
-<div class="shell">
-$readlink -f `which javac`
-</div>
-</li>
-	<li>Do you need to override the Ops Manager Local
-Version directory? <br/>The default is 
-<span class="mono">/data/automation/mongodb-releases/</span>).<br/> 
-If <b>NO</b> continue to step 4, else continue.<br/><br/> 
-Note the path you wish to use, then ensure the user you run 
-the <span class="mono">mongodb-mms</span> service as has read
-and write permission on that path. In the post-install step you 
-will be able to set this configuration parameter 
-(<span class="mono">automation.versions.directory</span>)
-.</li>
-<li>You will need to manually download the IBM POWER 
-(<span class="mono">ppc64le</span>) builds for each 
-MongoDB version you wish to backup with Ops Manager.<br/> 
-Be sure to place the <span class="mono">.tgz</span> file in the 
- <span class="mono">automation.versions.directory</span>
-directory and <b><i>ALSO</i></b> unpack the archive!
-</li>
+Note, we have replaced 
+<span class="mono">ppc64le</span> with <span class="mono">x86_64</span>.
+</p>
 </ol>
 <h3>Installation Instructions</h3>
 <ol>
@@ -114,24 +118,15 @@ curl -OL http://54.89.245.135/builds/3.4.7.479-1/mongodb-mms-3.4.7.479-1.ppc64le
 </li>
 
 <li>
-Use the <a href="https://docs.opsmanager.mongodb.com/current/tutorial/install-on-prem-from-archive/">Install from Archive on Linux</a> documentation
-to install Ops Manager, <b>BUT....</b>
+<p>Use the <a href="https://docs.opsmanager.mongodb.com/current/tutorial/install-on-prem-from-archive/">Install from Archive on Linux</a> documentation
+to install Ops Manager using the archive downloaded in step 2.
+Be sure to configure 
+<a href="https://docs.opsmanager.mongodb.com/current/tutorial/configure-local-mode/">Local Mode</a> 
+for Ops Manager when installing.
+</p>
 </li>
-<li>
-After step 2 (unpacking the Ops Manager archive) download and 
-execute the post install script:
 
-<br/>
-<div class="shell">
-curl -OL https://raw.githubusercontent.com/jasonmimick/poweropsmgr-builder/master/post-install.sh
-</div>
-<div class="shell">
-chmod +x post-install.sh
-</div>
-<div class="shell">
-./post-install.sh
-</div>
-</li>
+
 
 </ol>
 
